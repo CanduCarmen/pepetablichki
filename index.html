@@ -178,6 +178,14 @@
 
   .chip:hover { border-color: var(--found); color: var(--bright); }
 
+  /* --- строка статуса поиска (нашлось / загружаю / ошибка) --- */
+  #hitsInfo {
+    padding: 6px 12px 0;
+    font-size: 11px;
+    color: var(--dim);
+    min-height: 16px;
+  }
+
   #resultsWrap {
     flex: 1;
     min-height: 80px;
@@ -344,6 +352,7 @@
     <div class="pad"><input type="text" id="query" placeholder="пипохуй или СВО &quot;x z&quot;"></div>
     <label class="cb"><input type="checkbox" id="alsoPortals"> искать и в порталах</label>
     <div id="chips"></div>
+    <div id="hitsInfo"></div>
     <div id="resultsWrap"><div id="results"></div></div>
 
     <div class="styleblock">
