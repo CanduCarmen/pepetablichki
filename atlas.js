@@ -34,6 +34,9 @@
     hits: [],
   };
 
+  window.__atlas = state;
+  window.__atlasRender = render;
+
   function $(id) { return document.getElementById(id); }
 
   function qsAll(sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); }
