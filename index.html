@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Карта миров</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root[data-theme="dark"] {
+    /* --- Discord Ash --- */
+    --bg: #1e1f22;
+    --panel: #2E2E34;
+    --line: #37373E;
+
+    --grid: rgba(148, 155, 164, 0.15);
+    --grid-hover: rgba(88, 101, 242, 0.25);
+
+    --text: #dbdee1;
+    --bright: #f2f3f5;
+    --dim: #949ba4;
+
+    --found: #5865F2;
+    --label-bg: rgba(46, 46, 52, 0.9);
+
+    --input-bg: #1e1f22;
+    --btn-bg: #37373E;
+    --shadow: rgba(0, 0, 0, 0.5);
+
+    --radius: 8px;
+    --radius-lg: 10px;
+  }
+
+  :root[data-theme="light"] {
+    /* --- Discord Light --- */
+    --bg: #f2f3f5;
+    --panel: #ffffff;
+    --line: #e3e5e8;
+
+    --grid: rgba(79, 84, 92, 0.12);
+    --grid-hover: rgba(88, 101, 242, 0.2);
+
+    --text: #2e3338;
+    --bright: #060607;
+    --dim: #5c5e66;
+
+    --found: #5865F2;
+    --label-bg: rgba(255, 255, 255, 0.9);
+
+    --input-bg: #f2f3f5;
+    --btn-bg: #e3e5e8;
+    --shadow: rgba(0, 0, 0, 0.08);
+
+    --radius: 8px;
+    --radius-lg: 10px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { height: 100%; margin: 0; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    overflow: hidden;
+    letter-spacing: 0.1px;
+  }
+
+  #app { display: flex; width: 100%; height: 100%; }
+
+  #panel {
+    width: 300px;
+    min-width: 300px;
+    background: var(--panel);
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .head {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    color: var(--dim);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 14px 12px 6px;
+  }
+
+  select, input[type=text] {
+    width: 100%;
+    background: var(--input-bg);
+    color: var(--bright);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 8px 10px;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    margin: 0;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  select:focus, input[type=text]:focus {
+    outline: none;
+    border-color: var(--found);
+    box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.25);
+  }
+
+  .pad { padding: 0 12px; }
+
+  label.cb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    user-select: none;
+    color: var(--text);
+    transition: color 0.15s ease;
+  }
+
+  label.cb:hover { color: var(--bright); }
+
+  label.cb input { accent-color: var(--found); }
+
+  .row { display: flex; gap: 6px; padding: 8px 12px 0; }
+
+  button {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    background: var(--btn-bg);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 8px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease,
+                border-color 0.15s ease, transform 0.05s ease;
+  }
+
+  button:hover {
+    color: var(--bright);
+    border-color: var(--found);
+    background: #404149;
+  }
+
+  :root[data-theme="light"] button:hover {
+    background: #d7d9dd;
+  }
+
+  button:active { transform: translateY(1px); }
+
+  .row button { flex: 1; }
+
+  #chips { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px 10px 0; }
+
+  .chip {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--line);
+    color: var(--text);
+    border: 1px solid transparent;
+    transition: border-color 0.15s ease, color 0.15s ease;
+    cursor: pointer;
+  }
+
+  .chip:hover { border-color: var(--found); color: var(--bright); }
+
+  #resultsWrap {
+    flex: 1;
+    min-height: 80px;
+    margin: 6px 12px 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow-y: auto;
+    background: var(--input-bg);
+  }
+
+  .result-row {
+    font-size: 12px;
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background 0.15s ease, color 0.15s ease, padding-left 0.15s ease;
+  }
+
+  .result-row:hover {
+    background: var(--line);
+    color: var(--bright);
+    padding-left: 14px;
+  }
+
+  .styleblock {
+    padding: 10px 12px;
+    border-top: 1px solid var(--line);
+    margin-top: 8px;
+  }
+
+  .colorrow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 5px 0;
+    font-size: 12px;
+    color: var(--dim);
+  }
+
+  .colorrow input[type=color] {
+    width: 34px;
+    height: 24px;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: none;
+    cursor: pointer;
+  }
+
+  .colorrow input[type=range] {
+    flex: 1;
+    accent-color: var(--found);
+  }
+
+  #themeBtn {
+    width: calc(100% - 24px);
+    margin: 8px 12px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 6px 12px;
+  }
+
+  #themeBtn .theme-gif {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    image-rendering: auto;
+    pointer-events: none;
+    vertical-align: middle;
+  }
+
+  #resetColors { width: 100%; margin-top: 6px; }
+
+  #mapWrap { position: relative; flex: 1; height: 100%; }
+
+  #map {
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
+    background: var(--bg);
+  }
+
+  #map:active { cursor: grabbing; }
+
+  #status {
+    position: absolute;
+    left: 0; bottom: 0; right: 0;
+    padding: 8px 12px;
+    font-size: 11px;
+    color: var(--dim);
+    background: linear-gradient(transparent, var(--shadow) 40%);
+    pointer-events: none;
+  }
+
+  .disclaimer-small {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 10px;
+    line-height: 1.35;
+    color: var(--dim);
+    text-align: center;
+    padding: 8px 4px 2px;
+    letter-spacing: 0.2px;
+    opacity: 0.85;
+  }
+
+  #tooltip {
+    position: absolute;
+    display: none;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 8px 12px;
+    font-size: 12px;
+    box-shadow: 0 8px 24px var(--shadow);
+    pointer-events: none;
+    max-width: 320px;
+  }
+
+  .tt-head {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    color: var(--bright);
+    margin-bottom: 3px;
+  }
+
+  .tt-line { color: var(--text); }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--line);
+    border-radius: 999px;
+    border: 2px solid var(--panel);
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--dim); }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="panel">
+    <div class="head">мир</div>
+    <div class="pad"><select id="worldSelect"></select></div>
+
+    <div class="head">показывать</div>
+    <label class="cb"><input type="checkbox" id="showSigns" checked> таблички</label>
+    <label class="cb"><input type="checkbox" id="showPortals" checked> порталы</label>
+    <label class="cb"><input type="checkbox" id="showLabels" checked> подписи при приближении</label>
+    <label class="cb"><input type="checkbox" id="showBg" checked> карта под точками</label>
+    <label class="cb"><input type="checkbox" id="showGrid" checked> сетка</label>
+
+    <div class="row">
+      <button id="fitBtn">вся карта</button>
+    </div>
+
+    <div class="head">поиск по табличкам</div>
+    <div class="pad"><input type="text" id="query" placeholder="пипохуй или СВО &quot;x z&quot;"></div>
+    <label class="cb"><input type="checkbox" id="alsoPortals"> искать и в порталах</label>
+    <div id="chips"></div>
+    <div id="resultsWrap"><div id="results"></div></div>
+
+    <div class="styleblock">
+      <div class="head" style="padding:0 0 6px;">вид</div>
+      <div class="colorrow">
+        <span>цвет табличек</span>
+        <input type="color" id="signColor" value="#ffd23f">
+      </div>
+      <div class="colorrow">
+        <span>цвет порталов</span>
+        <input type="color" id="portalColor" value="#9b5de5">
+      </div>
+      <div class="colorrow">
+        <span>размер точек</span>
+        <input type="range" id="dotSize" min="0.5" max="3" step="0.1" value="1">
+      </div>
+      <button id="resetColors">сбросить вид</button>
+      <button id="themeBtn" title="Переключить тему">
+        <img id="themeGif" class="theme-gif" src="" alt="">
+        <span id="themeLabel">тёмная</span>
+      </button>
+      <div class="disclaimer-small">
+        Не имеет отношения к pepeland.net и является фанатским микро пипо проектом
+      </div>
+    </div>
+  </div>
+
+  <div id="mapWrap">
+    <canvas id="map"></canvas>
+    <div id="status"></div>
+    <div id="tooltip"></div>
+  </div>
+</div>
+<script src="atlas.js"></script>
+</body>
+</html>
